@@ -1,0 +1,39 @@
+esphome:
+  name: audio-analyzer
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Tells ESPHome to look in the /components directory
+external_components:
+  - source:
+      type: local
+      path: components
+
+# Core MSGEQ7 component configuration
+msgeq7:
+  id: my_msgeq7
+  strobe_pin: GPIO25
+  reset_pin: GPIO26
+  analog_pin: GPIO34
+
+# Define the 7 individual frequency band sensors
+sensor:
+  - platform: msgeq7
+    msgeq7_id: my_msgeq7
+    band_63hz:
+      name: "Band 63Hz"
+    band_160hz:
+      name: "Band 160Hz"
+    band_400hz:
+      name: "Band 400Hz"
+    band_1khz:
+      name: "Band 1kHz"
+    band_2_5khz:
+      name: "Band 2.5kHz"
+    band_6_25khz:
+      name: "Band 6.25kHz"
+    band_16khz:
+      name: "Band 16kHz"
