@@ -1,0 +1,157 @@
+esphome:
+  name: msgeq7
+  friendly_name: msgeq7
+ 
+ 
+
+ 
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino  #esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "INdwj1Up1S+VKUwG5+mYsabOl8z0J0TlmncvUCvnDr4="
+
+ota:
+  - platform: esphome
+    password: "07c8897b5ac24659ff406a2445c79c44"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Msgeq7 Fallback Hotspot"
+    password: "wlMzRCnrOYGO"
+
+captive_portal:
+ 
+ 
+
+ 
+
+globals:
+  - id: band0
+    type: int
+  - id: band1
+    type: int
+  - id: band2
+    type: int
+  - id: band3
+    type: int
+  - id: band4
+    type: int
+  - id: band5
+    type: int
+  - id: band6
+    type: int
+
+
+
+output:
+  - platform: gpio
+    pin: GPIO25
+    id: msgeq7_reset
+
+  - platform: gpio
+    pin: GPIO26
+    id: msgeq7_strobe
+
+sensor:
+
+
+
+
+  
+  - platform: template
+    name: "MSGEQ7 Band 0"
+    lambda: return id(band0);
+    update_interval: 1s
+    internal: True
+
+  - platform: template
+    name: "MSGEQ7 Band 1"
+    lambda: return id(band1);
+    update_interval: 1s
+    internal: True
+
+  - platform: template
+    name: "MSGEQ7 Band 2"
+    lambda: return id(band2);
+    update_interval: 1s
+    internal: True
+
+  - platform: template
+    name: "MSGEQ7 Band 3"
+    lambda: return id(band3);
+    update_interval: 1s
+    internal: True
+
+  - platform: template
+    name: "MSGEQ7 Band 4"
+    lambda: return id(band4);
+    update_interval: 1s
+    internal: True
+
+  - platform: template
+    name: "MSGEQ7 Band 5"
+    lambda: return id(band5);
+    update_interval: 1s
+    internal: True
+
+  - platform: template
+    name: "MSGEQ7 Band 6"
+    lambda: return id(band6);
+    update_interval: 1s
+    internal: True
+
+
+interval:
+  - interval: 50ms
+    then:
+      - lambda: |-
+          pinMode(25, OUTPUT);
+          pinMode(26, OUTPUT);
+          pinMode(34, INPUT);
+
+          digitalWrite(26, HIGH);
+
+          digitalWrite(25, HIGH);
+          delayMicroseconds(5);
+          digitalWrite(25, LOW);
+
+          int values[7];
+
+          for (int i = 0; i < 7; i++) {
+            digitalWrite(26, LOW);
+            delayMicroseconds(40);
+
+            values[i] = analogRead(34);
+
+            digitalWrite(26, HIGH);
+            delayMicroseconds(40);
+          }
+
+          id(band0) = values[0];
+          id(band1) = values[1];
+          id(band2) = values[2];
+          id(band3) = values[3];
+          id(band4) = values[4];
+          id(band5) = values[5];
+          id(band6) = values[6];
+
+
+
+binary_sensor:
+  - platform: template
+    name: "Bass Beat"
+    lambda: |-
+      return id(band0) > 1000;
